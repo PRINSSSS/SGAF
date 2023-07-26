@@ -1,0 +1,153 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Forms {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+	<div class="content">
+		<div class="page-inner">
+			<div class="page-header">
+				<h4 class="page-title">Rafraichissement</h4>
+				<ul class="breadcrumbs">
+					<li class="nav-home">
+						<a href="#">
+							<i class="flaticon-home"></i>
+						</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Rafraichissement</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Ajout</a>
+					</li>
+				</ul>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Ajouter un nouveau rafraichissement </div>
+						</div>
+						<div class="card-body">
+							<form method="post">
+								{% csrf_token %}
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="levain">Levain</label>
+										<select required name="levain" id="levain" class="form-control" placeholder="Choisir un levain">
+											<option> choisir un levain</option>
+											{% for levain in levains %}
+												<option value="{{levain.code_levain}}">{{forloop.counter}}.{{levain.code_levain}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="nom_tech">Technique de rafraichissement</label>
+										<select required name="nom_tech" id="nom_tech" class="form-control" placeholder="Choisir une technique de rafraichissement">
+											<option> choisir une technique de rafraichissement</option>
+											{% for technique in techniques %}
+												<option value="{{technique.nom_tech}}">{{forloop.counter}}.{{technique.nom_tech}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="date">Date de rafraichissement</label>
+										<input type="date"  required   name="date" id="date" class="form-control" placeholder="Entrer la date du rafraichissement">
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="num_rafraichit">N°Rafraichissement</label>
+										<input type="number"  required   name="num_rafraichit" id="num_rafraichit" class="form-control" placeholder="Entrer le numero de rafraichissement">
+									</div>
+								</div>
+								<div id="wrapper">
+									<div class="form-row">
+										<div class="form-group col-md-6">
+											<label for="ing-1">#1 Ingredient</label>
+											<select required name="ing" id="ing-1" class="form-control" placeholder="Choisir un ingredient">
+												<option> choisir un ingrédient</option>
+												{% for ingredient in ingredients %}
+													<option value="{{ingredient.nom_ing}}">{{forloop.counter}}.{{ingredient.nom_ing}}</option>
+												{% endfor %}
+											</select>
+										</div>
+										<div class="form-group col-md-6">
+											<label for="qte-1">Quantité</label>
+											<input type="number" required  name="qte" id="qte-1" step="0.01" onchange='handleChangeSingleArticle(this.id)' class="form-control" placeholder="Masse de l'ingredient(g)">
+										</div>
+									</div>
+								</div>
+								
+								<div>
+									<button type="submit" class="btn btn-success">Enregistrer</button>
+									<button type="reset" class="btn btn-danger">Annuler</button>
+								</div>
+							</form>
+							<br>
+							<div class="card-action">
+						   	<div class="row justify-content-between">
+								<button id="btn-add" class="btn btn-outline-warning col-3">Ajouter une nouvelle ligne</button>
+								<button id="btn-remove" class="btn btn-outline-danger col-3">Retirer une ligne</button>
+							</div>	
+							</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script type="text/javascript">
+
+	// click to ajout un nouveau
+	
+	$(document).on('click', '#btn-add',function(){
+		var number = $('#wrapper').children().length + 1;
+	
+		let formAdd = 				`<div class="form-row">
+										<div class="form-group col-md-6">
+											<label for="ing-${number}">#${number} Ingredient</label>
+											<select required name="ing" id="ing-${number}" class="form-control" placeholder="Choisir un ingredient">
+												<option> choisir un ingrédient</option>
+												{% for ingredient in ingredients %}
+													<option value="{{ingredient.nom_ing}}">{{forloop.counter}}.{{ingredient.nom_ing}}</option>
+												{% endfor %}
+											</select>
+										</div>
+										<div class="form-group col-md-6">
+											<label for="qte-${number}">Quantité</label>
+											<input type="number" required  name="qte" id="qte-${number}" step="0.01" onchange='handleChangeSingleArticle(this.id)' class="form-control" placeholder="Masse de l'ingredient(g)">
+										</div>
+									</div>`;
+		$('#wrapper:last').append(formAdd);
+	})
+	
+	// click to remove la derniere article
+	$(document).on('click', '#btn-remove', function(){
+        $("#wrapper").children().last().remove();
+    })
+	
+	</script>
+
+	<!-- Atlantis DEMO methods, don't include it in your project! -->
+	<script src="/static/assets/js/setting-demo2.js"></script>
+
+{% endblock javascripts %}	

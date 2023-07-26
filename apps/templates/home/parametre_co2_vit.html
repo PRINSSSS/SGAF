@@ -1,0 +1,449 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Forms {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+
+	<div class="content">
+		<div class="page-inner">
+			<div class="page-header">
+				<h4 class="page-title">Vitesse de production CO2 </h4>
+				<ul class="breadcrumbs">
+					<li class="nav-home">
+						<a href="#">
+							<i class="flaticon-home"></i>
+						</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Paramétres de panification</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Vitesse de production CO2</a>
+					</li>
+				</ul>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Tests de panification </div>
+						</div>
+						<div class="card-body">
+							<form method="POST">
+								{% csrf_token %}
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="panif1">Test de Panification N°1</label>
+										<select required name="panif1" id="panif1" class="form-control" placeholder="Choisir un test panification">
+									
+											{% for panif1 in Panifications %}
+												<option value="{{panif1.num_test}}">{{panif1.num_test}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="panif2">Test de Panification N°2</label>
+										<select required name="panif2" id="panif2" class="form-control" placeholder="Choisir un test panification">
+									
+											{% for panif2 in Panifications %}
+												<option value="{{panif2.num_test}}">{{panif2.num_test}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="panif3">Test de Panification N°3</label>
+										<select required name="panif3" id="panif3" class="form-control" placeholder="Choisir un test panification">
+									
+											{% for panif3 in Panifications %}
+												<option value="{{panif3.num_test}}">{{panif3.num_test}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div>
+									<button type="submit" class="btn btn-success">Select</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="d-flex align-items-center">
+									<h4 class="card-title">Table de la Vitesse de production CO2 </h4>
+									<button id="my-button2"  class="btn btn-info btn-round ml-auto">
+										<i class="fa fa-plus"></i>
+										Tracer 
+									</button>
+									<button  onclick="exportToExcel()" class="btn btn-primary btn-round ml-auto" >
+										<i class="fas fa-file-download"></i>
+										Exporter
+									</button>
+								
+							</div>
+						</div>
+						<div class="card-body">
+							{% if not df.empty %}
+							<div class="card-body">
+								<div class="table-responsive">
+									<table id="add-row" class="display table table-striped table-hover">
+										<thead>
+										<tr>
+											{% for column in columns %}
+											<th>{{ column }}</th>
+											{% endfor %}
+											
+										</tr>
+										</thead>
+										<tbody>
+										{% for row in rows %}
+											<tr>
+											{% for value in row %}
+												<td>{{ value }}</td>
+											{% endfor %}
+											
+											</tr>
+										{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>	
+			
+			<div class="row">
+				<div class="col-md-6">
+					<div class="card">
+						<div class="card-header">
+							<div class="d-flex align-items-center">
+								<h4 class="card-title"> Vitesse de production CO2</h4>
+								<button  onclick="exportChartAsPNG()" class="btn btn-primary btn-round ml-auto" >
+									<i class="fas fa-file-download"></i>
+									
+								</button>
+							</div>
+							
+						</div>
+						<div class="card-body">
+							<div class="chart-container">
+								<canvas id="multico2"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card">
+						<div class="card-header">
+							<div class="d-flex align-items-center">
+								<h4 class="card-title"> Moyenne Vitesse de production CO2</h4>
+								<button  onclick="exportChart()" class="btn btn-primary btn-round ml-auto" >
+									<i class="fas fa-file-download"></i>
+									
+								</button>
+							</div>
+							
+						</div>
+						<div class="card-body">
+							<div class="chart-container">
+								<canvas id="moyco2"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			</div>
+
+		</div>
+	</div>
+	
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+	<!-- Atlantis DEMO methods, don't include it in your project! -->
+	<script src="/static/assets/js/setting-demo2.js"></script>
+
+	<script>
+		function exportToExcel() {
+			const table = document.getElementById("add-row");
+			const wb = XLSX.utils.table_to_book(table);
+			XLSX.writeFile(wb, "tablevitesseprodco2.xlsx");
+		}
+	</script>
+	
+	<script >
+	
+		$(document).ready(function() {
+			$('#add-row').DataTable( {
+				"pageLength": 5,
+				"lengthMenu": [5, 10, 25, 50, 100, 1500],
+				initComplete: function () {
+					this.api().columns().every( function () {
+						var column = this;
+						var select = $('<select class="form-control"><option value=""></option></select>')
+						.appendTo( $(column.footer()).empty() )
+						.on( 'change', function () {
+							var val = $.fn.dataTable.util.escapeRegex(
+								$(this).val()
+								);
+
+							column
+							.search( val ? '^'+val+'$' : '', true, false )
+							.draw();
+						} );
+
+						column.data().unique().sort().each( function ( d, j ) {
+							select.append( '<option value="'+d+'">'+d+'</option>' )
+						} );
+					} );
+				}
+			});
+
+			// Add Row
+			
+
+			var action = '<td> <div class="form-button-action"> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
+
+			$('#addRowButton').click(function() {
+				$('#add-row').dataTable().fnAddData([
+					$("#addName").val(),
+					$("#addPosition").val(),
+					$("#addOffice").val(),
+					action
+					]);
+				$('#addRowModal').modal('hide');
+
+			});
+		});
+
+		$(document).ready(function() {
+			$('#my-button2').click(function() {
+		
+				$.ajax({	
+					url: "grapheparametreco2vitesse",
+					type: 'get',
+					dataType: 'json',
+					success: function(datas9) {
+
+						const propertyValues = [];
+						const instance = datas9[1];
+						const names = Object.keys(instance);
+
+						for (let j = 0; j < 5; j++) {
+							const valeur = [];
+							for (let i = 0; i < datas9.length; i++) {
+								const name = names[j];
+								const instance = datas9[i];
+								const value = instance[name];
+								valeur.push(value);
+							}
+							propertyValues.push(valeur);
+						}
+			
+
+						multipleLineChart = document.getElementById('multico2').getContext('2d');
+						lineChart = document.getElementById('moyco2').getContext('2d');
+
+						// Récupérer les labels et les données du graphique
+						const labels = propertyValues[0];
+						const data1 = propertyValues[1];
+						const data2 = propertyValues[2];
+						const data3 = propertyValues[3];
+						const data4 = propertyValues[4];
+
+						// Créer le graphique line chart
+						var myMultipleLineChart = new Chart(multipleLineChart, {
+						type: 'line',
+						data: {
+							labels: labels ,
+							datasets: [{
+								label: names[1],
+								borderColor: "#1d7af3",
+								pointBorderColor: "#FFF",
+								pointBackgroundColor: "#1d7af3",
+								pointBorderWidth: 2,
+								pointHoverRadius: 4,
+								pointHoverBorderWidth: 1,
+								pointRadius: 0,
+								backgroundColor: 'transparent',
+								fill: true,
+								borderWidth: 2,
+								data: data1
+							},{
+								label:names[2],
+								borderColor: "#59d05d",
+								pointBorderColor: "#FFF",
+								pointBackgroundColor: "#59d05d",
+								pointBorderWidth: 2,
+								pointHoverRadius: 4,
+								pointHoverBorderWidth: 1,
+								pointRadius: 0,
+								backgroundColor: 'transparent',
+								fill: true,
+								borderWidth: 2,
+								data: data2
+							}, {
+								label: names[3],
+								borderColor: "#f3545d",
+								pointBorderColor: "#FFF",
+								pointBackgroundColor: "#f3545d",
+								pointBorderWidth: 2,
+								pointHoverRadius: 4,
+								pointHoverBorderWidth: 1,
+								pointRadius: 0,
+								backgroundColor: 'transparent',
+								fill: true,
+								borderWidth: 2,
+								data: data3
+							}]
+						},
+						options : {
+							responsive: true, 
+							maintainAspectRatio: false,
+							legend: {
+								position: 'top',
+							},
+							tooltips: {
+								bodySpacing: 4,
+								mode:"nearest",
+								intersect: 0,
+								position:"nearest",
+								xPadding:10,
+								yPadding:10,
+								caretPadding:10
+							},
+							layout:{
+								padding:{left:15,right:15,top:15,bottom:15}
+							},
+							scales: {
+									xAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'Temps' // Nom de l'axe des abscisses (axe X)
+										}
+									}],
+									yAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'Vitesse de Production CO2'// Nom de l'axe des ordonnées (axe Y)
+										}
+									}]
+								}
+						}
+						});		
+						var myLineChart = new Chart(lineChart, {
+						type: 'line',
+						data: {
+							labels:labels ,
+							datasets: [{
+								label: "Moyenne Vitesse de production CO2",
+								borderColor: "#1d7af3",
+								pointBorderColor: "#FFF",
+								pointBackgroundColor: "#1d7af3",
+								pointBorderWidth: 2,
+								pointHoverRadius: 4,
+								pointHoverBorderWidth: 1,
+								pointRadius: 0,
+								backgroundColor: 'transparent',
+								fill: true,
+								borderWidth: 2,
+								data: data4,
+								
+							}]
+						},
+						options : {
+							responsive: true, 
+							maintainAspectRatio: false,
+							legend: {
+								position: 'bottom',
+								labels : {
+									padding: 10,
+									fontColor: '#1d7af3',
+								}
+							},
+							tooltips: {
+								bodySpacing: 4,
+								mode:"nearest",
+								intersect: 0,
+								position:"nearest",
+								xPadding:10,
+								yPadding:10,
+								caretPadding:10
+							},
+							layout:{
+								padding:{left:15,right:15,top:15,bottom:15}
+							},
+							scales: {
+									xAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'Temps' // Nom de l'axe des abscisses (axe X)
+										}
+									}],
+									yAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'Vitesse de Production CO2'// Nom de l'axe des ordonnées (axe Y)
+										}
+									}]
+								}
+						}
+					});
+						},
+					error: function(xhr, status, error) {
+						console.error(error);
+					}
+				});
+			});
+		});
+		// Fonction pour exporter le graphique en tant qu'image PNG
+        function exportChartAsPNG() {
+            const canvas = document.getElementById('multico2');
+            const image = canvas.toDataURL('image/png');
+
+            // Création d'un lien de téléchargement
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = 'multigraphe.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+		function exportChart() {
+            const canvas = document.getElementById('moyco2');
+            const image = canvas.toDataURL('image/png');
+
+            // Création d'un lien de téléchargement
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = 'moyennegraphe.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+	</script>	
+
+{% endblock javascripts %}	

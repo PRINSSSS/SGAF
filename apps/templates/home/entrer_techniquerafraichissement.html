@@ -1,0 +1,76 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Forms {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+	<div class="content">
+		<div class="page-inner">
+			<div class="page-header">
+				<h4 class="page-title">Technique de rafraichissement</h4>
+				<ul class="breadcrumbs">
+					<li class="nav-home">
+						<a href="#">
+							<i class="flaticon-home"></i>
+						</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Technique de rafraichissement</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">ajout</a>
+					</li>
+				</ul>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Ajouter une nouvelle technique de rafraichissement </div>
+						</div>
+						<div class="card-body">
+							<form method="post">
+								{% csrf_token %}
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="nom_tech">nom de la technique de rafraichissement</label>
+										<input type="text"  required  name="nom_tech" id="nom_tech" class="form-control" placeholder="Entrer le nom de la technique">
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="description">Description</label>
+										<textarea name="description" cols="30" rows="4" id="description" class="form-control" placeholder="Description"></textarea>
+									</div>
+								</div>
+								<div>
+									<button type="submit" class="btn btn-success">Enregistrer</button>
+									<button type="reset" class="btn btn-danger">Annuler</button>
+								</div>
+							</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+
+
+	<!-- Atlantis DEMO methods, don't include it in your project! -->
+	<script src="/static/assets/js/setting-demo2.js"></script>
+
+{% endblock javascripts %}	

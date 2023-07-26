@@ -1,0 +1,440 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Forms {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+
+	<div class="content">
+		<div class="page-inner">
+			<div class="page-header">
+				<h4 class="page-title">Données de Panification calculées</h4>
+				<ul class="breadcrumbs">
+					<li class="nav-home">
+						<a href="#">
+							<i class="flaticon-home"></i>
+						</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Acquisition</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Données calculées</a>
+					</li>
+				</ul>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Test de panification</div>
+						</div>
+						<div class="card-body">
+							<form method="POST">
+								{% csrf_token %}
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="panif">Test de Panification</label>
+										<select required name="panif" id="panif" class="form-control" placeholder="Choisir un test panification">
+									
+											{% for panif in Panifications %}
+												<option value="{{panif.num_test}}">{{panif.num_test}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div>
+									<button type="submit" id="submit-button" class="btn btn-success">Select</button>
+									<button type="reset" class="btn btn-danger">Annuler</button>
+								</div>
+							</form>
+						</div>
+						<div class="card-footer">
+							<!-- Barre de chargement -->
+							<div id="loading-bar" class="progress" style="display: none;">
+								<div class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="d-flex align-items-center">
+									<h4 class="card-title">Table des Données calculées </h4>
+									
+									<button  onclick="exportToExcel()" class="btn btn-primary btn-round ml-auto" >
+										<i class="fas fa-file-download"></i>
+										Tableau
+									</button>
+									
+							</div>
+						</div>
+						<div class="card-body">
+							{% if not df.empty %}
+							<div class="card-body">
+								<div class="table-responsive">
+									<table id="add-row" class="display table table-striped table-hover">
+										<thead>
+										<tr>
+											<th>Fin panification</th>
+											{% for column in columns %}
+											<th>{{ column }}</th>
+											{% endfor %}
+											
+										</tr>
+										</thead>
+										<tbody>
+										{% for row in rows %}
+											<tr>
+												<td>
+													<div class="form-button-action">
+														<button id="btn-finpanif" type="button" onclick="changerCouleurBouton()" class="btn btn-link btn-success btn-lg" 
+														data-toggle="modal" data-target="#staticBackdrop" data-row="{{ row }}" 
+														data-original-title="Fin panification">
+															<i class="
+															far fa-check-circle"></i>
+														</button>
+													</div>
+												</td>
+											{% for value in row %}
+												<td>{{ value }}</td>
+											{% endfor %}
+											
+											</tr>
+										{% endfor %}
+										</tbody>
+									</table>
+								</div>
+							</div>
+							{% endif %}
+						</div>
+						<div class="card-footer">
+							<div class = 'd-flex align-items-center'>
+								<button id="my-button1"  class="btn btn-warning btn-round ml-auto">
+									<i class="fa fa-plus"></i>
+									Tracer 
+								</button>
+								<button  onclick="exportAllChartsAsImages()" class="btn btn-danger btn-round ml-auto" >
+									<i class="fas fa-file-download"></i>
+									Graphes	
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>	
+			
+			<div class="row">
+				{% for i in  names %}
+				<div class="col-md-6">
+					<div class="card">
+						<div class="card-body">
+							<div class="chart-container">
+									<canvas id="chart-{{ i }}"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+				{% endfor %}
+				
+			</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- Modal  fin panification -->
+	<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+			<h5 class="modal-title" id="staticBackdropLabel">Fin panification</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+			<form method="post">
+				{% csrf_token %}
+				<div class="modal-body">
+					<label  id="label_id_s"><strong id="strong_id_s">Vous confirmez que c'est le moment précis de la fin de la fermentation de ce test ??</strong></label>
+					<input type="hidden" id="id_finpanif" name="id_finpanif">
+					<input type="hidden" id="temps_finpanif" name="temps_finpanif">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					<button type="submit" class="btn btn-primary">Enregistrer</button>
+				</div>
+			</form>
+		</div>
+		</div>
+	</div>
+	
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+	<!-- Atlantis DEMO methods, don't include it in your project! -->
+	<script src="/static/assets/js/setting-demo2.js"></script>
+
+	<script>
+		$(document).ready(function() {
+		  $('#submit-button').click(function() {
+			// Afficher la barre de chargement
+			$('#loading-bar').show();
+	  
+			// Définir le temps de chargement simulé en millisecondes (par exemple, 5 secondes)
+			var tempsDeChargement = 10000;
+	  
+			// Mettre à jour la barre de chargement pendant le temps de chargement simulé
+			var pourcentage = 0;
+			var increment = 100 / (tempsDeChargement / 1000); // Augmenter la barre de 1% chaque seconde
+	  
+			var progressInterval = setInterval(function() {
+			  pourcentage += increment;
+			  $('#loading-bar .progress-bar').css('width', pourcentage + '%').attr('aria-valuenow', pourcentage);
+	  
+			  // Une fois la barre de chargement remplie à 100%, masquer la barre
+			  if (pourcentage >= 100) {
+				clearInterval(progressInterval);
+				setTimeout(function() {
+				  $('#loading-bar').hide();
+				}, 500); // Ajoutez un délai supplémentaire pour l'animation de la disparition de la barre
+			  }
+			}, 1000); // Mettre à jour la barre toutes les secondes
+		  });
+		});
+	</script>
+
+
+	<script>
+		function exportToExcel() {
+			const table = document.getElementById("add-row");
+			const wb = XLSX.utils.table_to_book(table);
+			XLSX.writeFile(wb, "tabledonneescalculees.xlsx");
+		}
+	</script>
+
+
+	<script type="text/javascript">
+
+		function changerCouleurBouton() {
+            var monBouton = document.getElementById('btn-finpanif');
+            monBouton.style.backgroundColor = 'red'; // Changer la couleur de fond du bouton ici (par exemple, 'red' pour rouge)
+        }
+		$(document).on('click', '#btn-finpanif', function(){
+			
+
+			let row = $(this).data('row');
+			console.log(row);
+			let rows = row.slice(1, -1);
+			let dataArray = rows.split(", ");
+			var data = dataArray.splice(1, 1);
+			console.log(dataArray);
+			
+			var liste = dataArray.map(function(element) {
+				var decimalValue = element.match(/\d+\.\d+/g)[0];
+				return parseFloat(decimalValue);
+			});
+			let id = liste[0];
+			$("#id_finpanif").val(id);
+			$("#temps_finpanif").val(liste[1]);
+			console.log(id);
+			console.log(liste);
+			console.log(liste[1]);
+
+
+			
+		});
+
+	</script>
+
+
+	
+	<script >
+	
+		$(document).ready(function() {
+			$('#add-row').DataTable( {
+				"pageLength": 5,
+				"lengthMenu": [5, 10, 25, 50, 100, 1500],
+				initComplete: function () {
+					this.api().columns().every( function () {
+						var column = this;
+						var select = $('<select class="form-control"><option value=""></option></select>')
+						.appendTo( $(column.footer()).empty() )
+						.on( 'change', function () {
+							var val = $.fn.dataTable.util.escapeRegex(
+								$(this).val()
+								);
+
+							column
+							.search( val ? '^'+val+'$' : '', true, false )
+							.draw();
+						} );
+
+						column.data().unique().sort().each( function ( d, j ) {
+							select.append( '<option value="'+d+'">'+d+'</option>' )
+						} );
+					} );
+				}
+			});
+
+			// Add Row
+
+			var action = '<td> <div class="form-button-action"> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
+
+			$('#addRowButton').click(function() {
+				$('#add-row').dataTable().fnAddData([
+					$("#addName").val(),
+					$("#addPosition").val(),
+					$("#addOffice").val(),
+					action
+					]);
+				$('#addRowModal').modal('hide');
+
+			});
+		});
+		$(document).ready(function() {
+			$('#my-button1').click(function() {
+				$.ajax({	
+					url: "affichagegraphedonneecalcule",
+					type: 'get',
+					dataType: 'json',
+					success: function(datas) {
+						console.log(datas);
+						const propertyValues = [];
+						const instance = datas[1];
+						const names = Object.keys(instance);
+
+						for (let j = 0; j < names.length; j++) {
+							const valeur = [];
+
+							for (let i = 0; i < datas.length; i++) {
+								const name = names[j];
+								const instance = datas[i];
+								const value = instance[name];
+								valeur.push(value);
+							}
+							propertyValues.push(valeur);
+						}
+						console.log(names); // Affiche la liste des noms de propriétés
+						console.log(propertyValues); // Affiche la liste des valeurs des propriétés
+						
+						// Créer un canvas pour chaque graphique
+						
+						const chartContainer = document.querySelector('.chart-container');
+    
+						for (let i = 3; i < names.length; i++) {
+						const canvas = document.getElementById(`chart-${i}`);
+						const ctx = canvas.getContext('2d');
+
+						// Récupérer les labels et les données du graphique
+						const labels = propertyValues[2];
+						const data = propertyValues[i];
+
+						// Créer le graphique line chart
+						new Chart(ctx, {
+							type: 'line',
+							data: {
+							labels: labels,
+							datasets: [
+								{
+								label: names[i],
+								borderColor: "#f3545d",
+								pointRadius: 0,
+								backgroundColor: 'transparent',
+								fill: true,
+								data: data,
+								borderWidth: 2
+								}
+							]
+							},
+							options : {
+								responsive: true, 
+								maintainAspectRatio: false,
+								legend: {
+									position: 'bottom',
+									labels : {
+										padding: 10,
+										fontColor: '#f3545d',
+									}
+								},
+								tooltips: {
+									bodySpacing: 4,
+									mode:"nearest",
+									intersect: 0,
+									position:"nearest",
+									xPadding:10,
+									yPadding:10,
+									caretPadding:10
+								},
+								layout:{
+									padding:{left:15,right:15,top:15,bottom:15}
+								},
+								scales: {
+									xAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'Temps' // Nom de l'axe des abscisses (axe X)
+										}
+									}],
+									yAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: names[i] // Nom de l'axe des ordonnées (axe Y)
+										}
+									}]
+								}
+							}
+							});
+						}			
+					},
+					error: function(xhr, status, error) {
+						console.error(error);
+					}
+				});
+			});
+		});
+		
+		// Fonction pour télécharger tous les graphiques en tant qu'images
+        function exportAllChartsAsImages() {
+            const allCharts = document.querySelectorAll('canvas');
+            const promises = [];
+
+            // Convertir chaque graphique en image et ajouter la promesse à la liste
+            allCharts.forEach(chart => {
+                const promise = html2canvas(chart).then(canvas => {
+                    return canvas.toDataURL('image/png');
+                });
+                promises.push(promise);
+            });
+
+            // Attendre que toutes les promesses soient résolues
+            Promise.all(promises).then(images => {
+                // Créer des liens de téléchargement pour chaque image
+                images.forEach((imageURL, index) => {
+                    const link = document.createElement('a');
+                    link.href = imageURL;
+                    link.download = `chart_${index + 1}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            });
+        }
+		
+	</script>	
+
+{% endblock javascripts %}	

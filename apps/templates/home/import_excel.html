@@ -1,0 +1,571 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Forms {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+	<div class="content">
+		<div class="page-inner">
+			<div class="page-header">
+				<h4 class="page-title">Importation des données</h4>
+				<ul class="breadcrumbs">
+					<li class="nav-home">
+						<a href="#">
+							<i class="flaticon-home"></i>
+						</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Import données</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">importer</a>
+					</li>
+				</ul>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Importer les données</div>
+						</div>
+						<div class="card-body">
+							<form method="POST">
+								{% csrf_token %}
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="panif">Test de Panification</label>
+										<select required name="panif" id="panif" class="form-control" placeholder="Choisir un test panification">
+										<option >Choisir un test panification</option>
+											{% for panif in Panifications %}
+												<option value="{{panif.num_test}}">{{panif.num_test}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div>
+									<button type="submit" class="btn btn-success">Select</button>
+									<button type="reset" class="btn btn-danger">Annuler</button>
+								</div>
+							</form>
+							<br>
+							<form method="POST" enctype="multipart/form-data">
+								{% csrf_token %}
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="excel_file">Sélectionner un fichier Excel à importer :</label>
+										<br><br>
+										<input type="file" id="excel_file" name="excel_file" accept=".xlsx, .xls">
+										<br><br>
+									</div>
+								</div>
+								<div>		
+									<input type="submit" value="Importer">
+								</div>
+							</form>
+							<br>
+							
+						</div>
+						<div class="card-footer">
+							<div class="container">
+								<div class="row">
+									<!-- Contenu de gauche -->
+									<div class="col-md-6">
+										<p>Cliquez sur le lien ci-dessous pour télécharger le fichier contenant la procédure à suivre pour importer des données.</p>
+										<a href="{% url 'telecharger_fichierprocedure' %}" download>Télécharger le fichier</a>
+									</div>
+					
+									<!-- Contenu de droite -->
+									<div class="col-md-6">
+										<p>Cliquez sur le lien ci-dessous pour télécharger le canva excel.</p>
+										<a href="{% url 'telecharger_fichierexcel' %}" download>Télécharger le fichier</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="card">
+						<div class="card-header">
+							<div class="d-flex align-items-center">
+								<h3 class="card-title">CO2</h3>
+								<button onclick="traceData()" class="btn btn-info btn-round ml-auto">
+									<i class="fa fa-plus"></i>
+									Tracer 
+								</button>
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="chart-container">
+								<canvas id="co2Chart"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Distance</div>
+						</div>
+						<div class="card-body">
+							<div class="chart-container">
+								<canvas id="distanceChart"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Ethanol</div>
+						</div>
+						<div class="card-body">
+							<div class="chart-container">
+								<canvas id="ethanolChart"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">pH</div>
+						</div>
+						<div class="card-body">
+							<div class="chart-container">
+								<canvas id="phChart"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">	
+							<div class="d-flex align-items-center">
+								<h4 class="card-title">Table des Données brutes importées</h4>
+								<button  onclick="sendData()" class="btn btn-primary btn-round ml-auto" >
+									<i class="fa fa-plus"></i>
+									Enregistrer
+								</button>
+							</div>
+						</div>
+						{% if not df.empty %}
+						<div class="card-body">
+							<div class="table-responsive">
+								<table id="add-row" class="display table table-striped table-hover">
+									<thead>
+									  <tr>
+										<th>N°Test Panification</th>
+										{% for column in columns %}
+										  <th>{{ column }}</th>
+										{% endfor %}
+										
+									  </tr>
+									</thead>
+									<tbody>
+									  {% for row in rows %}
+										<tr>
+											<td>{{selected_panification.num_test}}</td>
+										  {% for value in row %}
+											<td>{{ value }}</td>
+										  {% endfor %}
+
+										</tr>
+									  {% endfor %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>	
+
+		</div>
+	</div>
+	
+	
+
+	
+	
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+
+	<!-- Atlantis DEMO methods, don't include it in your project! -->
+	<script src="/static/assets/js/setting-demo2.js"></script>
+
+
+	<script >
+		$(document).ready(function() {
+			$('#add-rows').DataTable( {
+				"pageLength": 5,
+				initComplete: function () {
+					this.api().columns().every( function () {
+						var column = this;
+						var select = $('<select class="form-control"><option value=""></option></select>')
+						.appendTo( $(column.footer()).empty() )
+						.on( 'change', function () {
+							var val = $.fn.dataTable.util.escapeRegex(
+								$(this).val()
+								);
+
+							column
+							.search( val ? '^'+val+'$' : '', true, false )
+							.draw();
+						} );
+
+						column.data().unique().sort().each( function ( d, j ) {
+							select.append( '<option value="'+d+'">'+d+'</option>' )
+						} );
+					} );
+				}
+			});
+
+			// Add Row
+			
+			var action = '<td> <div class="form-button-action"> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
+
+			$('#addRowButton').click(function() {
+				$('#add-rows').dataTable().fnAddData([
+					$("#addName").val(),
+					$("#addPosition").val(),
+					$("#addOffice").val(),
+					action
+					]);
+				$('#addRowModal').modal('hide');
+
+			});
+		});
+
+		function convertTo24HourFormat(timeString) {
+
+			if (timeString === 'midnight') {
+				var hours = 0;
+				var minutes = 0;
+
+			} else if (timeString === 'noon') {
+				var hours = 12;
+				var minutes = 0;
+
+			} else {
+				var timeParts = timeString.split(' ');
+				var time = timeParts[0].split(':');
+				var hours = parseInt(time[0]);
+				var minutes = time.length > 1 ? parseInt(time[1]) : 0;
+				var meridiem = timeParts[1];
+
+				if (meridiem === 'p.m.' && hours < 12) {
+					hours += 12;
+				}
+
+				if (meridiem === 'a.m.' && hours === 12) {
+					hours = 0;
+				}
+			}
+
+			var hoursFormatted = hours.toString().padStart(2, '0');
+			var minutesFormatted = minutes.toString().padStart(2, '0');
+
+			return hoursFormatted + ':' + minutesFormatted;
+			}
+
+
+		function sendData() {
+			var table = document.getElementById('add-row');
+			var parametres = [];
+
+			// Parcourir les lignes du tableau et stocker les données dans un tableau
+			for (var i = 1; i < table.rows.length; i++) {
+				var parametre = {
+				panification: table.rows[i].cells[0].innerText,
+				heure: convertTo24HourFormat(table.rows[i].cells[1].innerText),
+				parametre2: table.rows[0].cells[2].innerText,
+				val_parametre2: table.rows[i].cells[2].innerText,
+				parametre3: table.rows[0].cells[3].innerText,
+				val_parametre3: table.rows[i].cells[3].innerText,
+				parametre4: table.rows[0].cells[4].innerText,
+				val_parametre4: table.rows[i].cells[4].innerText,
+				parametre5: table.rows[0].cells[5].innerText,
+				val_parametre5: table.rows[i].cells[5].innerText,
+				parametre6: table.rows[0].cells[6].innerText,
+				val_parametre6: table.rows[i].cells[6].innerText,
+				parametre7: table.rows[0].cells[7].innerText,
+				val_parametre7: table.rows[i].cells[7].innerText
+				};
+				parametres.push(parametre);
+			};
+			console.log(parametres)
+			alert('Êtes vous sûre de sauvergarder ces données ?');
+
+			// Envoyer les données via une requête AJAX
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', 'enregistrementdata');
+			xhr.setRequestHeader('Content-Type', 'application/json');
+			xhr.onload = function() {
+				if (xhr.status === 200) {
+				alert('Les données ont été enregistrées avec succès !');
+				} else {
+				alert('Une erreur est survenue lors de l\'enregistrement des données.');
+				}
+			};
+			xhr.send(JSON.stringify(parametres));
+		};
+		function traceData(){
+			var table = document.getElementById('add-row');
+			var temps = [];
+			var co2 = [];
+			var distance = [];
+			var ethanol = [];
+			var ph = [];
+
+			for (var i = 1; i < table.rows.length; i++) {
+				temps.push(parseFloat(table.rows[i].cells[2].innerText));
+				co2.push(parseFloat(table.rows[i].cells[3].innerText));
+				distance.push(parseFloat(table.rows[i].cells[4].innerText));
+				ethanol.push(parseFloat(table.rows[i].cells[5].innerText));
+				ph.push(parseFloat(table.rows[i].cells[6].innerText));
+			};
+			
+			var co2Chart = document.getElementById('co2Chart').getContext('2d');
+			var distanceChart = document.getElementById('distanceChart').getContext('2d');
+			var ethanolChart = document.getElementById('ethanolChart').getContext('2d');
+			var phChart = document.getElementById('phChart').getContext('2d');
+			
+			var myco2Chart = new Chart(co2Chart, {
+				type: 'line',
+				data: {
+					labels: temps,
+					datasets: [{
+						label: "CO2",
+						borderColor: "#1d7af3",
+						pointRadius: 0,
+						backgroundColor: 'transparent',
+						fill: true,
+						borderWidth: 2,
+						data: co2
+					}]
+				},
+				options : {
+					responsive: true, 
+					maintainAspectRatio: false,
+					legend: {
+						position: 'bottom',
+						labels : {
+							padding: 10,
+							fontColor: '#1d7af3',
+						}
+					},
+					tooltips: {
+						bodySpacing: 4,
+						mode:"nearest",
+						intersect: 0,
+						position:"nearest",
+						xPadding:10,
+						yPadding:10,
+						caretPadding:10
+					},
+					layout:{
+						padding:{left:15,right:15,top:15,bottom:15}
+					},
+					scales: {
+									xAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'Temps' // Nom de l'axe des abscisses (axe X)
+										}
+									}],
+									yAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'CO2'// Nom de l'axe des ordonnées (axe Y)
+										}
+									}]
+								}
+				}
+			});
+			var mydistanceChart = new Chart(distanceChart, {
+				type: 'line',
+				data: {
+					labels: temps,
+					datasets: [{
+						label: "DRC",
+						borderColor: "#f3545d",
+						pointRadius: 0,
+						backgroundColor: 'transparent',
+						fill: true,
+						borderWidth: 2,
+						data: distance
+					}]
+				},
+				options : {
+					responsive: true, 
+					maintainAspectRatio: false,
+					legend: {
+						position: 'bottom',
+						labels : {
+							padding: 10,
+							fontColor: '#f3545d',
+						}
+					},
+					tooltips: {
+						bodySpacing: 4,
+						mode:"nearest",
+						intersect: 0,
+						position:"nearest",
+						xPadding:10,
+						yPadding:10,
+						caretPadding:10
+					},
+					layout:{
+						padding:{left:15,right:15,top:15,bottom:15}
+					},
+					scales: {
+									xAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'Temps' // Nom de l'axe des abscisses (axe X)
+										}
+									}],
+									yAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'DRC'// Nom de l'axe des ordonnées (axe Y)
+										}
+									}]
+								}
+				}
+			});
+			var myethanolChart = new Chart(ethanolChart, {
+				type: 'line',
+				data: {
+					labels: temps,
+					datasets: [{
+						label: "Ethanol",
+						borderColor: "#59d05d",
+						pointBorderColor: "#FFF",
+						pointBackgroundColor: "#59d05d",
+						pointBorderWidth: 2,
+						pointHoverRadius: 4,
+						pointHoverBorderWidth: 1,
+						pointRadius: 0,
+						backgroundColor: 'transparent',
+						fill: true,
+						borderWidth: 2,
+						data: ethanol
+					}]
+				},
+				options : {
+					responsive: true, 
+					maintainAspectRatio: false,
+					legend: {
+						position: 'bottom',
+						labels : {
+							padding: 10,
+							fontColor: '#59d05d',
+						}
+					},
+					tooltips: {
+						bodySpacing: 4,
+						mode:"nearest",
+						intersect: 0,
+						position:"nearest",
+						xPadding:10,
+						yPadding:10,
+						caretPadding:10
+					},
+					layout:{
+						padding:{left:15,right:15,top:15,bottom:15}
+					},
+					scales: {
+									xAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'Temps' // Nom de l'axe des abscisses (axe X)
+										}
+									}],
+									yAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'Ethanol'// Nom de l'axe des ordonnées (axe Y)
+										}
+									}]
+								}
+				}
+			});
+			var myphChart = new Chart(phChart, {
+				type: 'line',
+				data: {
+					labels: temps,
+					datasets: [{
+						label: "pH",
+						borderColor: "#f4ba1a",
+						pointBorderColor: "#FFF",
+						pointBackgroundColor: "#f4ba1a",
+						pointBorderWidth: 2,
+						pointHoverRadius: 4,
+						pointHoverBorderWidth: 1,
+						pointRadius: 0,
+						backgroundColor: 'transparent',
+						fill: true,
+						borderWidth: 2,
+						data: ph
+					}]
+				},
+				options : {
+					responsive: true, 
+					maintainAspectRatio: false,
+					legend: {
+						position: 'bottom',
+						labels : {
+							padding: 10,
+							fontColor: '#f4ba1a',
+						}
+					},
+					tooltips: {
+						bodySpacing: 4,
+						mode:"nearest",
+						intersect: 0,
+						position:"nearest",
+						xPadding:10,
+						yPadding:10,
+						caretPadding:10
+					},
+					layout:{
+						padding:{left:15,right:15,top:15,bottom:15}
+					},
+					scales: {
+									xAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'Temps' // Nom de l'axe des abscisses (axe X)
+										}
+									}],
+									yAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'pH'// Nom de l'axe des ordonnées (axe Y)
+										}
+									}]
+								}
+				}
+			});
+		};
+	</script>	
+
+{% endblock javascripts %}	

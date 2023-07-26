@@ -1,0 +1,826 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+			
+	<div class="content">
+		<div class="panel-header bg-primary-gradient">
+			<div class="page-inner py-5">
+				<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+					<div>
+						<h1 class="text-white pb-2 fw-bold">Tableau de bord</h1>
+						<h2 class="text-white op-7 mb-2">Systéme de gestion et d'analyse de la fermentation panaire</h2>
+					</div>
+					<div class="ml-md-auto py-2 py-md-0">
+						<a href="/recapitulationdonnees.html" class="btn btn-white btn-border btn-round mr-2">Récapitulation des tests</a>
+						<a href="/entrer_panification.html" class="btn btn-secondary btn-round">Ajout test panification</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="page-inner mt--5">
+			<div class="row mt--2">
+				<div class="col-md-6">
+					<div class="card full-height">
+						<div class="card-body">
+							<div class="card-title">Statistiques</div>
+							<div class="card-category">Informations quotidienne sur les statistiques dans le système</div>
+							<div class="d-flex flex-wrap justify-content-around pb-2 pt-4">
+								<div class="px-2 pb-2 pb-md-0 text-center">
+									<div id="circles-1"></div>
+									<h6 class="fw-bold mt-3 mb-0">Ingredients</h6>
+								</div>
+								<div class="px-2 pb-2 pb-md-0 text-center">
+									<div id="circles-2"></div>
+									<h6 class="fw-bold mt-3 mb-0">Levains</h6>
+								</div>
+								<div class="px-2 pb-2 pb-md-0 text-center">
+									<div id="circles-3"></div>
+									<h6 class="fw-bold mt-3 mb-0">Tests de Panification</h6>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card full-height">
+						<div class="card-body">
+							<div class="card-title">Performance des tests de Panification</div>
+							<div class="row py-6">
+						
+								<div class="col-md-12">
+									<div id="chart-container">
+										<canvas id="totalIncomeChart"></canvas>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="card">
+						
+						<div class="card-body">
+							<div class="chart-container">
+								<canvas id="multico2"></canvas>
+							</div>
+						</div>
+						<div class="axes-labels">
+							<span class="y-axis-label">CO2</span>
+						</div>
+						<style>
+							.chart-card {
+							position: relative;
+							}
+
+							.chart-container {
+							position: relative;
+							width: 100%;
+							}
+
+							.axes-labels {
+							position: absolute;
+							top: 50%;
+							left: 0;
+							transform: translateY(-50%);
+							font-size: 12px;
+							color: white;
+							display: flex;
+							flex-direction: column;
+							align-items: flex-start;
+							}
+
+							.y-axis-label {
+							margin-right: 5px;
+							writing-mode: vertical-lr;
+							}
+
+							.chart-container::after {
+							content: "Temps";
+							position: absolute;
+							bottom: 0;
+							left: 50%;
+							transform: translateX(-50%);
+							font-size: 12px;
+							color: white;
+							}
+						</style>
+						
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card">
+						
+						<div class="card-body">
+							<div class="chart-container">
+								<canvas id="moyco2"></canvas>
+							</div>
+						</div>
+						<div class="axes-labels">
+							<span class="y-axis-label">DRC</span>
+						</div>
+						<style>
+							.chart-card {
+							position: relative;
+							}
+
+							.chart-container {
+							position: relative;
+							width: 100%;
+							}
+
+							.axes-labels {
+							position: absolute;
+							top: 50%;
+							left: 0;
+							transform: translateY(-50%);
+							font-size: 12px;
+							color: white;
+							display: flex;
+							flex-direction: column;
+							align-items: flex-start;
+							}
+
+							.y-axis-label {
+							margin-right: 5px;
+							writing-mode: vertical-lr;
+							}
+
+							.chart-container::after {
+							content: "Temps";
+							position: absolute;
+							bottom: 0;
+							left: 50%;
+							transform: translateX(-50%);
+							font-size: 12px;
+							color: white;
+							}
+						  </style>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="card">
+						
+						<div class="card-body">
+							<div class="chart-container">
+								<canvas id="multiph"></canvas>
+							</div>
+						</div>
+						<div class="axes-labels">
+							<span class="y-axis-label">Ethanol</span>
+						</div>
+						<style>
+							.chart-card {
+							position: relative;
+							}
+
+							.chart-container {
+							position: relative;
+							width: 100%;
+							}
+
+							.axes-labels {
+							position: absolute;
+							top: 50%;
+							left: 0;
+							transform: translateY(-50%);
+							font-size: 12px;
+							color: white;
+							display: flex;
+							flex-direction: column;
+							align-items: flex-start;
+							}
+
+							.y-axis-label {
+							margin-right: 5px;
+							writing-mode: vertical-lr;
+							}
+
+							.chart-container::after {
+							content: "Temps";
+							position: absolute;
+							bottom: 0;
+							left: 50%;
+							transform: translateX(-50%);
+							font-size: 12px;
+							color: white;
+							}
+						</style>
+						
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="card">
+						
+						<div class="card-body">
+							<div class="chart-container">
+								<canvas id="moyph"></canvas>
+							</div>
+						</div>
+						<div class="axes-labels">
+							<span class="y-axis-label">pH</span>
+						</div>
+						<style>
+							.chart-card {
+							position: relative;
+							}
+
+							.chart-container {
+							position: relative;
+							width: 100%;
+							}
+
+							.axes-labels {
+							position: absolute;
+							top: 50%;
+							left: 0;
+							transform: translateY(-50%);
+							font-size: 12px;
+							color: white;
+							display: flex;
+							flex-direction: column;
+							align-items: flex-start;
+							}
+
+							.y-axis-label {
+							margin-right: 5px;
+							writing-mode: vertical-lr;
+							}
+
+							.chart-container::after {
+							content: "Temps";
+							position: absolute;
+							bottom: 0;
+							left: 50%;
+							transform: translateX(-50%);
+							font-size: 12px;
+							color: white;
+							}
+						  </style>
+					</div>
+				</div>
+			</div>
+			<div class ='row'>
+				<div id="data-container" data-nbrpanif="{{ nbr_panif }}" data-my-list="{{ data }}"
+					data-valeur ="{{ valeur }}" data-nbrlev = "{{ nbr_panif }}" data-nbring = "{{ nbr_ing }}">
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+	<!-- Atlantis DEMO methods, don't include it in your project! -->
+	<script src="/static/assets/js/setting-demo.js"></script>
+	<script src="/static/assets/js/demo.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0-beta.1"></script>
+	<script>
+        // Récupérer les données à partir des attributs data-* dans le JavaScript
+        var dataContainer = document.getElementById('data-container');
+        var nbrpanif = parseInt(dataContainer.getAttribute('data-nbrpanif'));
+		var nbrlev = parseInt(dataContainer.getAttribute('data-nbrlev'));
+		var nbring = parseInt(dataContainer.getAttribute('data-nbring'));
+        var data = JSON.parse(dataContainer.getAttribute('data-my-list'));
+		var valeur = JSON.parse(dataContainer.getAttribute('data-valeur'));
+
+        // Utiliser les variables dans votre code JavaScript
+        console.log("My number in JavaScript:", nbrpanif);
+        console.log("My list in JavaScript:", nbrlev);
+		console.log("My number in JavaScript:", nbring);
+        console.log("My list in JavaScript:", data);
+		console.log("My number in JavaScript:", valeur);
+        
+   
+		Circles.create({
+			id:'circles-1',
+			radius:45,
+			value:nbring,
+			maxValue:200,
+			width:7,
+			text: nbring,
+			colors:['#f1f1f1', '#FF9E27'],
+			duration:400,
+			wrpClass:'circles-wrp',
+			textClass:'circles-text',
+			styleWrapper:true,
+			styleText:true
+		})
+
+		Circles.create({
+			id:'circles-2',
+			radius:45,
+			value:nbrlev,
+			maxValue:200,
+			width:7,
+			text: nbrlev,
+			colors:['#f1f1f1', '#2BB930'],
+			duration:400,
+			wrpClass:'circles-wrp',
+			textClass:'circles-text',
+			styleWrapper:true,
+			styleText:true
+		})
+
+		Circles.create({
+			id:'circles-3',
+			radius:45,
+			value:nbrpanif,
+			maxValue:200,
+			width:7,
+			text: nbrpanif,
+			colors:['#f1f1f1', '#F25961'],
+			duration:400,
+			wrpClass:'circles-wrp',
+			textClass:'circles-text',
+			styleWrapper:true,
+			styleText:true
+		})
+
+		var totalIncomeChart = document.getElementById('totalIncomeChart').getContext('2d');
+
+		var mytotalIncomeChart = new Chart(totalIncomeChart, {
+			type: 'bar',
+			data: {
+				labels:data,
+				datasets : [{
+					label: "Temps de panification",
+					backgroundColor: '#ff9e27',
+					borderColor: 'rgb(23, 125, 255)',
+					data: valeur,
+				}],
+			},
+			options: {
+				responsive: true,
+				maintainAspectRatio: false,
+				legend: {
+					display: false,
+				},
+				scales: {
+					yAxes: [{
+						ticks: {
+							display: false //this will remove only the label
+						},
+						gridLines : {
+							drawBorder: false,
+							display : false
+						}
+					}],
+					xAxes : [ {
+						gridLines : {
+							drawBorder: false,
+							display : false
+						}
+					}]
+				},
+				plugins: {
+					datalabels: {
+						anchor: 'end',
+						align: 'top',
+						formatter: function(value, context) {
+							// Affichez la valeur de l'ordonnée (la hauteur de la barre) à l'intérieur de la barre
+							return value;
+						},
+						color: 'red', // Couleur du texte
+						font: {
+							weight: 'bold' // Police en gras
+						}
+					}
+				},
+			}
+		});
+
+		$.ajax({	
+			url: "grapheindexco2",
+			type: 'get',
+			dataType: 'json',
+			success: function(datas1) {
+				console.log(datas1);
+				const propertyValues = [];
+				const instance = datas1[1];
+				const names = Object.keys(instance);
+
+				for (let j = 0; j < names.length; j++) {
+					const valeur = [];
+
+					for (let i = 0; i < datas1.length; i++) {
+						const name = names[j];
+						const instance = datas1[i];
+						const value = instance[name];
+						valeur.push(value);
+					}
+					propertyValues.push(valeur);
+				}
+				console.log(names); // Affiche la liste des noms de propriétés
+				console.log(propertyValues); // Affiche la liste des valeurs des propriétés
+
+				// Créer un canvas pour le graphique
+				const canvas = document.getElementById('multico2'); // Utiliser un seul canvas pour afficher toutes les colonnes
+				const ctx = canvas.getContext('2d');
+
+				// Récupérer les labels du graphique (assumant que les labels sont dans la deuxième colonne)
+				const labels = propertyValues[0];
+				console.log(labels)
+
+				// Créer les datasets pour chaque colonne
+				const datasets = [];
+				for (let i = 1; i < names.length; i++) {
+					const data = propertyValues[i];
+					datasets.push({
+						label: names[i],
+						borderColor: getRandomColor(), // Utiliser une couleur aléatoire pour chaque ligne
+						pointRadius: 0,
+						backgroundColor: 'transparent',
+						fill: false, // Ligne sans remplissage pour un multiline chart
+						data: data,
+						borderWidth: 2
+					});
+				}
+
+				// Créer le graphique multiline chart avec tous les datasets
+				new Chart(ctx, {
+					type: 'line',
+					data: {
+						labels: labels,
+						datasets: datasets
+					},
+					options: {
+						responsive: true, 
+						maintainAspectRatio: false,
+						legend: {
+								position: 'top',
+							},
+						tooltips: {
+							bodySpacing: 4,
+							mode: "nearest",
+							intersect: 0,
+							position: "nearest",
+							xPadding: 10,
+							yPadding: 10,
+							caretPadding: 10
+						},
+						layout: {
+							padding: {left: 15, right: 15, top: 15, bottom: 15}
+						},
+						scales: {
+							xAxes: [{
+								scaleLabel: {
+									display: true,
+									labelString: 'Temps' // Nom de l'axe des abscisses (axe X)
+								}
+							}],
+							yAxes: [{
+								scaleLabel: {
+									display: true,
+									labelString: 'CO2' // Nom de l'axe des ordonnées (axe Y)
+								}
+							}]
+						}
+						
+					}
+				});
+			},
+			error: function(xhr, status, error) {
+				console.error(error);
+			}
+		});
+
+		// Fonction pour obtenir une couleur aléatoire en format hexadécimal
+		function getRandomColor() {
+			const letters = '0123456789ABCDEF';
+			let color = '#';
+			for (let i = 0; i < 6; i++) {
+				color += letters[Math.floor(Math.random() * 16)];
+			}
+			return color;
+		};
+
+		$.ajax({	
+			url: "grapheindexdrc",
+			type: 'get',
+			dataType: 'json',
+			success: function(datas2) {
+				console.log(datas2);
+				const propertyValues = [];
+				const instance = datas2[1];
+				const names = Object.keys(instance);
+
+				for (let j = 0; j < names.length; j++) {
+					const valeur = [];
+
+					for (let i = 0; i < datas2.length; i++) {
+						const name = names[j];
+						const instance = datas2[i];
+						const value = instance[name];
+						valeur.push(value);
+					}
+					propertyValues.push(valeur);
+				}
+				console.log(names); // Affiche la liste des noms de propriétés
+				console.log(propertyValues); // Affiche la liste des valeurs des propriétés
+
+				// Créer un canvas pour le graphique
+				const canvas = document.getElementById('moyco2'); // Utiliser un seul canvas pour afficher toutes les colonnes
+				const ctx = canvas.getContext('2d');
+
+				// Récupérer les labels du graphique (assumant que les labels sont dans la deuxième colonne)
+				const labels = propertyValues[0];
+				console.log(labels)
+
+				// Créer les datasets pour chaque colonne
+				const datasets = [];
+				for (let i = 1; i < names.length; i++) {
+					const data = propertyValues[i];
+					datasets.push({
+						label: names[i],
+						borderColor: getRandomColor(), // Utiliser une couleur aléatoire pour chaque ligne
+						pointRadius: 0,
+						backgroundColor: 'transparent',
+						fill: false, // Ligne sans remplissage pour un multiline chart
+						data: data,
+						borderWidth: 2
+					});
+				}
+
+				// Créer le graphique multiline chart avec tous les datasets
+				new Chart(ctx, {
+					type: 'line',
+					data: {
+						labels: labels,
+						datasets: datasets
+					},
+					options: {
+						responsive: true, 
+						maintainAspectRatio: false,
+						legend: {
+								position: 'top',
+							},
+						tooltips: {
+							bodySpacing: 4,
+							mode: "nearest",
+							intersect: 0,
+							position: "nearest",
+							xPadding: 10,
+							yPadding: 10,
+							caretPadding: 10
+						},
+						layout: {
+							padding: {left: 15, right: 15, top: 15, bottom: 15}
+						},
+						scales: {
+							xAxes: [{
+								scaleLabel: {
+									display: true,
+									labelString: 'Temps' // Nom de l'axe des abscisses (axe X)
+								}
+							}],
+							yAxes: [{
+								scaleLabel: {
+									display: true,
+									labelString: 'CO2' // Nom de l'axe des ordonnées (axe Y)
+								}
+							}]
+						}
+						
+					}
+				});
+			},
+			error: function(xhr, status, error) {
+				console.error(error);
+			}
+		});
+
+		// Fonction pour obtenir une couleur aléatoire en format hexadécimal
+		function getRandomColor() {
+			const letters = '0123456789ABCDEF';
+			let color = '#';
+			for (let i = 0; i < 6; i++) {
+				color += letters[Math.floor(Math.random() * 16)];
+			}
+			return color;
+		};
+
+		$.ajax({	
+			url: "grapheindexethanol",
+			type: 'get',
+			dataType: 'json',
+			success: function(datas3) {
+				console.log(datas3);
+				const propertyValues = [];
+				const instance = datas3[1];
+				const names = Object.keys(instance);
+
+				for (let j = 0; j < names.length; j++) {
+					const valeur = [];
+
+					for (let i = 0; i < datas3.length; i++) {
+						const name = names[j];
+						const instance = datas3[i];
+						const value = instance[name];
+						valeur.push(value);
+					}
+					propertyValues.push(valeur);
+				}
+				console.log(names); // Affiche la liste des noms de propriétés
+				console.log(propertyValues); // Affiche la liste des valeurs des propriétés
+
+				// Créer un canvas pour le graphique
+				const canvas = document.getElementById('multiph'); // Utiliser un seul canvas pour afficher toutes les colonnes
+				const ctx = canvas.getContext('2d');
+
+				// Récupérer les labels du graphique (assumant que les labels sont dans la deuxième colonne)
+				const labels = propertyValues[0];
+				console.log(labels)
+
+				// Créer les datasets pour chaque colonne
+				const datasets = [];
+				for (let i = 1; i < names.length; i++) {
+					const data = propertyValues[i];
+					datasets.push({
+						label: names[i],
+						borderColor: getRandomColor(), // Utiliser une couleur aléatoire pour chaque ligne
+						pointRadius: 0,
+						backgroundColor: 'transparent',
+						fill: false, // Ligne sans remplissage pour un multiline chart
+						data: data,
+						borderWidth: 2
+					});
+				}
+
+				// Créer le graphique multiline chart avec tous les datasets
+				new Chart(ctx, {
+					type: 'line',
+					data: {
+						labels: labels,
+						datasets: datasets
+					},
+					options: {
+						responsive: true, 
+						maintainAspectRatio: false,
+						legend: {
+								position: 'top',
+							},
+						tooltips: {
+							bodySpacing: 4,
+							mode: "nearest",
+							intersect: 0,
+							position: "nearest",
+							xPadding: 10,
+							yPadding: 10,
+							caretPadding: 10
+						},
+						layout: {
+							padding: {left: 15, right: 15, top: 15, bottom: 15}
+						},
+						scales: {
+							xAxes: [{
+								scaleLabel: {
+									display: true,
+									labelString: 'Temps' // Nom de l'axe des abscisses (axe X)
+								}
+							}],
+							yAxes: [{
+								scaleLabel: {
+									display: true,
+									labelString: 'CO2' // Nom de l'axe des ordonnées (axe Y)
+								}
+							}]
+						}
+						
+					}
+				});
+			},
+			error: function(xhr, status, error) {
+				console.error(error);
+			}
+		});
+
+		// Fonction pour obtenir une couleur aléatoire en format hexadécimal
+		function getRandomColor() {
+			const letters = '0123456789ABCDEF';
+			let color = '#';
+			for (let i = 0; i < 6; i++) {
+				color += letters[Math.floor(Math.random() * 16)];
+			}
+			return color;
+		};
+
+		$.ajax({	
+			url: "grapheindexph",
+			type: 'get',
+			dataType: 'json',
+			success: function(datas4) {
+				console.log(datas4);
+				const propertyValues = [];
+				const instance = datas4[1];
+				const names = Object.keys(instance);
+
+				for (let j = 0; j < names.length; j++) {
+					const valeur = [];
+
+					for (let i = 0; i < datas4.length; i++) {
+						const name = names[j];
+						const instance = datas4[i];
+						const value = instance[name];
+						valeur.push(value);
+					}
+					propertyValues.push(valeur);
+				}
+				console.log(names); // Affiche la liste des noms de propriétés
+				console.log(propertyValues); // Affiche la liste des valeurs des propriétés
+
+				// Créer un canvas pour le graphique
+				const canvas = document.getElementById('moyph'); // Utiliser un seul canvas pour afficher toutes les colonnes
+				const ctx = canvas.getContext('2d');
+
+				// Récupérer les labels du graphique (assumant que les labels sont dans la deuxième colonne)
+				const labels = propertyValues[0];
+				console.log(labels)
+
+				// Créer les datasets pour chaque colonne
+				const datasets = [];
+				for (let i = 1; i < names.length; i++) {
+					const data = propertyValues[i];
+					datasets.push({
+						label: names[i],
+						borderColor: getRandomColor(), // Utiliser une couleur aléatoire pour chaque ligne
+						pointRadius: 0,
+						backgroundColor: 'transparent',
+						fill: false, // Ligne sans remplissage pour un multiline chart
+						data: data,
+						borderWidth: 2
+					});
+				}
+
+				// Créer le graphique multiline chart avec tous les datasets
+				new Chart(ctx, {
+					type: 'line',
+					data: {
+						labels: labels,
+						datasets: datasets
+					},
+					options: {
+						responsive: true, 
+						maintainAspectRatio: false,
+						legend: {
+								position: 'top',
+							},
+						tooltips: {
+							bodySpacing: 4,
+							mode: "nearest",
+							intersect: 0,
+							position: "nearest",
+							xPadding: 10,
+							yPadding: 10,
+							caretPadding: 10
+						},
+						layout: {
+							padding: {left: 15, right: 15, top: 15, bottom: 15}
+						},
+						scales: {
+							xAxes: [{
+								scaleLabel: {
+									display: true,
+									labelString: 'Temps' // Nom de l'axe des abscisses (axe X)
+								}
+							}],
+							yAxes: [{
+								scaleLabel: {
+									display: true,
+									labelString: 'CO2' // Nom de l'axe des ordonnées (axe Y)
+								}
+							}]
+						}
+						
+					}
+				});
+			},
+			error: function(xhr, status, error) {
+				console.error(error);
+			}
+		});
+
+		// Fonction pour obtenir une couleur aléatoire en format hexadécimal
+		function getRandomColor() {
+			const letters = '0123456789ABCDEF';
+			let color = '#';
+			for (let i = 0; i < 6; i++) {
+				color += letters[Math.floor(Math.random() * 16)];
+			}
+			return color;
+		};
+
+	</script>
+
+{% endblock javascripts %}

@@ -1,0 +1,600 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Forms {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+
+	<div class="content">
+		<div class="page-inner">
+			<div class="page-header">
+				<h4 class="page-title">Données de Panification brutes</h4>
+				<ul class="breadcrumbs">
+					<li class="nav-home">
+						<a href="#">
+							<i class="flaticon-home"></i>
+						</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Acquisition</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Données brutes</a>
+					</li>
+				</ul>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Test de panification</div>
+						</div>
+						<div class="card-body">
+							<form method="POST">
+								{% csrf_token %}
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="panif">Test de Panification</label>
+										<select required name="panif" id="panif" class="form-control" placeholder="Choisir un test panification">
+									
+											{% for panif in Panifications %}
+												<option value="{{panif.num_test}}">{{panif.num_test}}</option>
+											{% endfor %}
+										</select>
+									</div>
+								</div>
+								<div>
+									<button type="submit" class="btn btn-success">Select</button>
+									<button type="reset" class="btn btn-danger">Annuler</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="d-flex align-items-center">
+								
+									<h4 class="card-title">Table des Données brutes </h4>	
+									
+									<button  onclick="exportToExcel()" class="btn btn-primary btn-round ml-auto" >
+										<i class="fas fa-file-download"></i>
+										Tableau
+									</button>
+									
+									
+							</div>
+						</div>
+						<div class="card-body">
+							{% if not df.empty %}
+							<div class="card-body">
+								<div class="table-responsive">
+									<table id="add-row" class="display table table-striped table-hover">
+										<thead>
+										<tr>
+											{% for column in columns %}
+											<th>{{ column }}</th>
+											{% endfor %}
+											<th style="width: 10%">Action</th>
+											
+										</tr>
+										</thead>
+										<tbody>
+										{% for row in rows %}
+											<tr>
+											{% for value in row %}
+												<td>{{ value }}</td>
+											{% endfor %}
+											<td>
+												<div class="form-button-action">
+													<button id="btn-modifier" type="button"   class="btn btn-link btn-primary btn-lg" data-original-title="Modifier"
+														data-toggle="modal" data-target="#modifier"  data-row="{{ row }}" data-index="{{ loop.index0 }}" >
+														<i class="fa fa-edit"></i>
+													</button>
+							
+													<button id="btn-supprimer" type="button" class="btn btn-link btn-danger" data-toggle="modal" data-target="#staticBackdrop" data-row="{{ row }}"
+													data-original-title="Supprimer">
+														<i class="fa fa-times"></i>
+													</button>
+												</div>
+											</td>
+											</tr>
+											
+										{% endfor %}
+										
+										</tbody>
+									</table>
+								</div>
+							</div>
+							{% endif %}
+						</div>
+						<div class="card-footer">
+							<div class = 'd-flex align-items-center'>
+								<button id="my-button2"  class="btn btn-warning btn-round ml-auto">
+									<i class="fa fa-plus"></i>
+									Tracer 
+								</button>
+								<button  onclick="exportAllChartsAsImages()" class="btn btn-danger btn-round ml-auto" >
+									<i class="fas fa-file-download"></i>
+									Graphes	
+								</button>
+							</div>
+						</div>
+
+						</div>
+					</div>
+				</div>
+			</div>	
+			
+			<div class="row">
+				{% for i in  names %}
+				<div class="col-md-6">
+					<div class="card">
+						
+						<div class="card-body">
+							<div class="chart-container">
+									<canvas id="chart-{{ i }}"></canvas>
+							</div>
+						</div>
+					</div>
+				</div>
+				{% endfor %}
+				
+			</div>
+			</div>
+
+		</div>
+	</div>
+	<!-- Button trigger modal -->
+
+	
+	<!-- Modal  Suppression -->
+	<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+			<h5 class="modal-title" id="staticBackdropLabel">Suppression</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+			<form method="post">
+				{% csrf_token %}
+				<div class="modal-body">
+					<label class="text-dark" id="label_id_s"><strong id="strong_id_s">Etes vous sure de supprimer ces donnees?</strong></label>
+					<input type="hidden" id="id_Test_s" name="id_Test_s">
+					
+					<input type="hidden" id="id_Heure_s" name="id_Heure_s">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					<button type="submit" class="btn btn-primary">Supprimer</button>
+				</div>
+			</form>
+		</div>
+		</div>
+	</div>
+
+	<!-- Modal modifier -->
+	<div class="modal fade" id="modifier" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-dark text-center" id="exampleModalLabel">Modification</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form method="post">
+				{% csrf_token %}
+				<div class="modal-body">
+					
+					<input type="hidden" id="id_Test" name="id_Test">
+					
+					<input type="hidden" id="id_Heure" name="id_Heure">
+
+
+					<div class="form-group">
+						<label for="inputCO2">CO2</label>
+						<input type="number" required step="0.01" class="form-control" id="CO2" name="CO2">
+					</div>
+					
+					<!-- Exemple de champ pour la modification -->
+					<div class="form-group">
+						<label for="inputDistance">Distance</label>
+						<input type="number" required step="0.01" class="form-control" id="Distance" name="Distance">
+					</div>
+	
+					<div class="form-group">
+						<label for="inputEthanol">Ethanol</label>
+						<input type="number" required step="0.01" class="form-control" id="Ethanol" name="Ethanol">
+					</div>
+					
+					<!-- Exemple de champ pour la modification -->
+					<div class="form-group">
+						<label for="inputpH">pH</label>
+						<input type="number" required step="0.01" class="form-control" id="pH" name="pH">
+					</div>
+	
+					<div class="form-group">
+						<label for="inputMasse">Masse </label>
+						<input type="number" required step="0.01" class="form-control" id="Masse" name="Masse">
+					</div>
+	
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					<button type="submit" class="btn btn-primary">Enregistrer</button>
+				</div>
+			</form>
+		</div>
+		</div>
+	</div>
+	<!-- end modal-->
+
+
+	
+	
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+	<!-- Atlantis DEMO methods, don't include it in your project! -->
+	<script src="/static/assets/js/setting-demo2.js"></script>
+
+	<script>
+		function exportToExcel() {
+			const table = document.getElementById("add-row");
+			const wb = XLSX.utils.table_to_book(table);
+			XLSX.writeFile(wb, "tabledonneesbrutes.xlsx");
+		}
+	</script>
+
+	
+	<script type="text/javascript">
+
+		// modification
+	 
+		$(document).on('click', '#btn-modifier', function(){
+			let row = $(this).data('row');
+			let rows =row.slice(1, -1);
+			let dataArray =rows.split(", ");
+			var index1 = 1;
+			var index2 = 2;
+		
+
+			// Nouvel élément résultant de la fusion
+			var nouvelElement = dataArray[index1] +', '+ dataArray[index2];
+	
+			// Supprimer les deux éléments
+			dataArray.splice(index1, 2);
+			
+			// Insérer le nouvel élément à la place des deux éléments supprimés
+			dataArray.splice(index1, 0, nouvelElement);
+			
+
+			// Convertir les éléments spécifiques en types appropriés
+			var convertedArray = dataArray.map(function(item) {
+			// Vérifier le type de l'élément et effectuer la conversion correspondante
+			if (item.startsWith("datetime.time")) {
+				// Extraire les valeurs de l'élément datetime.time
+				var timeValues = item.match(/\d+/g);
+				// Créer un objet Date avec les valeurs extraites
+				var date = new Date(0, 0, 0, parseInt(timeValues[0]), parseInt(timeValues[1]));
+				// Extraire l'heure au format HH:MM:SS
+				var heure = ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+				// Retourner uniquement l'heure
+				return heure;
+			} else if (item.startsWith("Decimal")) {
+				// Extraire la valeur décimale de l'élément Decimal
+				var decimalValue = parseFloat(item.match(/-?\d+\.\d+/)[0]);
+				// Vérifier si la valeur est un nombre valide
+				if (!isNaN(decimalValue)) {
+					return decimalValue;
+				} else {
+					// Retourner 0 ou une valeur par défaut si la conversion échoue
+					return 0;
+				}
+				
+			} else {
+				// L'élément est considéré comme un nombre entier
+				return parseInt(item);
+			}
+			});
+
+			let ro = $(this).data('row');
+			console.log(ro);
+			let rowss = ro.slice(1, -1);
+			let dataArra = rowss.split(", ");
+			var data = dataArra.splice(1, 1);
+			console.log('dataarry',dataArra)
+			
+			
+			var liste = dataArray.map(function(element) {
+				// Vérifier si l'élément correspond au format attendu pour un nombre décimal
+				var decimalRegex = /\d+\.\d+/g;
+				var decimalMatch = element.match(decimalRegex);
+
+				if (decimalMatch && decimalMatch.length > 0) {
+					// Extraire la valeur décimale de l'élément
+					var decimalValue = parseFloat(decimalMatch[0]);
+					// Vérifier si la valeur est un nombre valide
+					if (!isNaN(decimalValue)) {
+						return decimalValue;
+					} else {
+						// Retourner 0 ou une valeur par défaut si la conversion échoue
+						console.log("Conversion échouée pour l'élément :", element);
+						return 0;
+					}
+				} else {
+					// Retourner 0 ou une valeur par défaut si l'élément ne correspond pas au format décimal
+					console.log("L'élément ne correspond pas au format décimal :", element);
+					return 0;
+				}
+			});
+			
+			console.log('convert',convertedArray);
+			console.log('liste',liste);
+			$("#id_Test").val(convertedArray[0]);
+			$("#id_Heure").val(convertedArray[1]);
+			$("#id_Temps").val(convertedArray[2]);
+			$("#CO2").val(liste[3]);
+			$("#Distance").val(liste[4]);
+			$("#Ethanol").val(liste[5]);
+			$("#pH").val(liste[6]);
+			$("#Masse").val(liste[7]);
+	 
+		})
+		
+
+	
+		// suppression
+	 
+		$(document).on('click', '#btn-supprimer', function(){
+			let row = $(this).data('row');
+			let rows =row.slice(1, -1);
+			let dataArray =rows.split(", ");
+			var index1 = 1;
+			var index2 = 2;
+		
+
+			// Nouvel élément résultant de la fusion
+			var nouvelElement = dataArray[index1] +', '+ dataArray[index2];
+	
+			// Supprimer les deux éléments
+			dataArray.splice(index1, 2);
+			
+			// Insérer le nouvel élément à la place des deux éléments supprimés
+			dataArray.splice(index1, 0, nouvelElement);
+			
+
+			// Convertir les éléments spécifiques en types appropriés
+			var convertedArray = dataArray.map(function(item) {
+			// Vérifier le type de l'élément et effectuer la conversion correspondante
+			if (item.startsWith("datetime.time")) {
+				// Extraire les valeurs de l'élément datetime.time
+				var timeValues = item.match(/\d+/g);
+				// Créer un objet Date avec les valeurs extraites
+				var date = new Date(0, 0, 0, parseInt(timeValues[0]), parseInt(timeValues[1]));
+				// Extraire l'heure au format HH:MM:SS
+				var heure = ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+				// Retourner uniquement l'heure
+				return heure;
+			} else if (item.startsWith("Decimal")) {
+				// Extraire la valeur décimale de l'élément Decimal
+				var decimalValue = item.match(/\d+\.\d+/g)[0];
+				// Convertir la valeur en nombre à virgule flottante
+				return parseFloat(decimalValue);
+			} else {
+				// L'élément est considéré comme un nombre entier
+				return parseInt(item);
+			}
+			});
+
+			
+			console.log(convertedArray);
+			$("#id_Test_s").val(convertedArray[0]);
+			$("#id_Heure_s").val(convertedArray[1]);
+			$("#id_Temps_s").val(convertedArray[2]);
+	 
+		})
+	 
+	</script>
+
+
+	<script >
+	
+		$(document).ready(function() {
+			$('#add-row').DataTable( {
+				"pageLength": 5,
+				"lengthMenu": [5, 10, 25, 50, 100, 1500],
+				initComplete: function () {
+					this.api().columns().every( function () {
+						var column = this;
+						var select = $('<select class="form-control"><option value=""></option></select>')
+						.appendTo( $(column.footer()).empty() )
+						.on( 'change', function () {
+							var val = $.fn.dataTable.util.escapeRegex(
+								$(this).val()
+								);
+
+							column
+							.search( val ? '^'+val+'$' : '', true, false )
+							.draw();
+						} );
+
+						column.data().unique().sort().each( function ( d, j ) {
+							select.append( '<option value="'+d+'">'+d+'</option>' )
+						} );
+					} );
+				}
+			});
+
+			// Add Row
+			
+
+			var action = '<td> <div class="form-button-action"> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
+
+			$('#addRowButton').click(function() {
+				$('#add-row').dataTable().fnAddData([
+					$("#addName").val(),
+					$("#addPosition").val(),
+					$("#addOffice").val(),
+					action
+					]);
+				$('#addRowModal').modal('hide');
+
+			});
+		});
+
+		$(document).ready(function() {
+			$('#my-button2').click(function() {
+		
+				$.ajax({	
+					url: "affichagegraphedonneebrute",
+					type: 'get',
+					dataType: 'json',
+					success: function(data_dict) {
+						console.log(data_dict);
+						const propertyValues = [];
+
+						const instance = data_dict[1];
+						const names = Object.keys(instance);
+
+						for (let j = 0; j < names.length; j++) {
+							const valeur = [];
+
+							for (let i = 0; i < data_dict.length; i++) {
+								const name = names[j];
+								const instance = data_dict[i];
+								const value = instance[name];
+								valeur.push(value);
+							}
+							propertyValues.push(valeur);
+						}
+						console.log(names); // Affiche la liste des noms de propriétés
+						console.log(propertyValues); // Affiche la liste des valeurs des propriétés
+						
+						// Créer un canvas pour chaque graphique
+						
+						const chartContainer = document.querySelector('.chart-container');
+
+    
+						for (let i = 3; i < names.length; i++) {
+						const canvas = document.getElementById(`chart-${i}`);
+						const ctx = canvas.getContext('2d');
+
+						
+						// Récupérer les labels et les données du graphique
+						const labels = propertyValues[2];
+						const data = propertyValues[i];
+
+						// Créer le graphique line chart
+						new Chart(ctx, {
+							type: 'line',
+							data: {
+							labels: labels,
+							datasets: [
+								{
+								label: names[i],
+								borderColor: "#f3545d",
+								pointRadius: 0,
+								backgroundColor: 'transparent',
+								fill: true,
+								data: data,
+								borderWidth: 2
+								}
+							]
+							},
+							options : {
+								responsive: true, 
+								maintainAspectRatio: false,
+								legend: {
+									position: 'bottom',
+									labels : {
+										padding: 10,
+										fontColor: '#f3545d',
+									}
+								},
+								tooltips: {
+									bodySpacing: 4,
+									mode:"nearest",
+									intersect: 0,
+									position:"nearest",
+									xPadding:10,
+									yPadding:10,
+									caretPadding:10
+								},
+								layout:{
+									padding:{left:15,right:15,top:15,bottom:15}
+								},
+								scales: {
+									xAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: 'Temps' // Nom de l'axe des abscisses (axe X)
+										}
+									}],
+									yAxes: [{
+										scaleLabel: {
+											display: true,
+											labelString: names[i] // Nom de l'axe des ordonnées (axe Y)
+										}
+									}]
+								}
+							}
+							});
+						}
+
+												
+									
+					},
+					error: function(xhr, status, error) {
+						console.error(error);
+					}
+				});
+			});
+		});
+		// Fonction pour télécharger tous les graphiques en tant qu'images
+        function exportAllChartsAsImages() {
+            const allCharts = document.querySelectorAll('canvas');
+            const promises = [];
+
+            // Convertir chaque graphique en image et ajouter la promesse à la liste
+            allCharts.forEach(chart => {
+                const promise = html2canvas(chart).then(canvas => {
+                    return canvas.toDataURL('image/png');
+                });
+                promises.push(promise);
+            });
+
+            // Attendre que toutes les promesses soient résolues
+            Promise.all(promises).then(images => {
+                // Créer des liens de téléchargement pour chaque image
+                images.forEach((imageURL, index) => {
+                    const link = document.createElement('a');
+                    link.href = imageURL;
+                    link.download = `chart_${index + 1}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            });
+        }
+		
+	</script>	
+
+{% endblock javascripts %}	

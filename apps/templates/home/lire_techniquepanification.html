@@ -1,0 +1,254 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Datatables {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+	<div class="content">
+		<div class="page-inner">
+			<div class="page-header">
+				<h4 class="page-title">Technique de panification</h4>
+				<ul class="breadcrumbs">
+					<li class="nav-home">
+						<a href="#">
+							<i class="flaticon-home"></i>
+						</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Technique de panification</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">liste</a>
+					</li>
+				</ul>
+			</div>
+			<div class="row">
+
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="d-flex align-items-center">
+								<h4 class="card-title">Table des techniques de panification</h4>
+								<button  onclick="exportToExcel()" class="btn btn-primary btn-round ml-auto" >
+									<i class="fas fa-file-download"></i>
+									Exporter
+								</button>
+							</div>
+						</div>
+						<div class="card-body">
+
+							
+						
+
+
+							<div class="table-responsive">
+								<table id="add-row" class="display table table-striped table-hover" >
+									<thead>
+										<tr>
+											<th>Technique panification</th>
+											<th>Description</th>
+											
+										</tr>
+									</thead>
+									<tfoot>
+										<tr>
+											<th>Technique panification</th>
+											<th>Description</th>
+											
+										</tr>
+									</tfoot>
+									<tbody id="table_panification">
+										{% if techniques %}
+										{% for technique in techniques %}
+										<tr>
+											<td>{{technique.nom_tech}}</td>
+											<td>{{technique.description}}</td>
+											
+											
+										</tr>
+										{% endfor %}
+										{% endif %}
+																				
+										
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal  Suppression -->
+	<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+			<h5 class="modal-title" id="staticBackdropLabel">Suppression</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+			<form method="post">
+				{% csrf_token %}
+				<div class="modal-body">
+					<label class="text-dark" id="label_id_s"><strong id="strong_id_s">Etes vous sure de supprimer ces donnees?</strong></label>
+					<input type="hidden" id="" name="">
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					<button type="submit" class="btn btn-primary">Supprimer</button>
+				</div>
+			</form>
+		</div>
+		</div>
+	</div>
+
+	<!-- Modal modifier -->
+	<div class="modal fade" id="modifier" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-dark text-center" id="exampleModalLabel">Modification</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form method="post">
+				{% csrf_token %}
+				<div class="modal-body">
+					
+					<input type="hidden" id="" name="">
+
+					<div class="form-group">
+						<label for="inputCO2">CO2</label>
+						<input type="number" class="form-control" id="inputCO2" name="CO2">
+					</div>
+					
+					<!-- Exemple de champ pour la modification -->
+					<div class="form-group">
+						<label for="inputDistance">Distance</label>
+						<input type="number" class="form-control" id="inputDistance" name="Distance">
+					</div>
+	
+					<div class="form-group">
+						<label for="inputEthanol">Ethanol</label>
+						<input type="number" class="form-control" id="inputEthanol" name="Ethanol">
+					</div>
+					
+					<!-- Exemple de champ pour la modification -->
+					<div class="form-group">
+						<label for="inputpH">pH</label>
+						<input type="number" class="form-control" id="inputpH" name="pH">
+					</div>
+	
+					<div class="form-group">
+						<label for="inputMasse">Masse </label>
+						<input type="number" class="form-control" id="inputMasse" name="Masse">
+					</div>
+	
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					<button type="submit" class="btn btn-primary">Enregistrer</button>
+				</div>
+			</form>
+		</div>
+		</div>
+	</div>
+	<!-- end modal-->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+	<!-- Atlantis DEMO methods, don't include it in your project! -->
+	<script src="/static/assets/js/setting-demo2.js"></script>
+	<script >
+		$(document).ready(function() {
+
+			$('#add-row').DataTable( {
+				"pageLength": 5,
+				"lengthMenu": [5, 10, 25, 50, 100, 1500],
+				initComplete: function () {
+					this.api().columns().every( function () {
+						var column = this;
+						var select = $('<select class="form-control"><option value=""></option></select>')
+						.appendTo( $(column.footer()).empty() )
+						.on( 'change', function () {
+							var val = $.fn.dataTable.util.escapeRegex(
+								$(this).val()
+								);
+
+							column
+							.search( val ? '^'+val+'$' : '', true, false )
+							.draw();
+						} );
+
+						column.data().unique().sort().each( function ( d, j ) {
+							select.append( '<option value="'+d+'">'+d+'</option>' )
+						} );
+					} );
+				}
+			});
+
+			$('#add-row').DataTable( {
+				"pageLength": 5,
+				initComplete: function () {
+					this.api().columns().every( function () {
+						var column = this;
+						var select = $('<select class="form-control"><option value=""></option></select>')
+						.appendTo( $(column.footer()).empty() )
+						.on( 'change', function () {
+							var val = $.fn.dataTable.util.escapeRegex(
+								$(this).val()
+								);
+
+							column
+							.search( val ? '^'+val+'$' : '', true, false )
+							.draw();
+						} );
+
+						column.data().unique().sort().each( function ( d, j ) {
+							select.append( '<option value="'+d+'">'+d+'</option>' )
+						} );
+					} );
+				}
+			});
+
+			// Add Row
+
+			var action = '<td> <div class="form-button-action"> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
+
+			$('#addRowButton').click(function() {
+				$('#add-row').dataTable().fnAddData([
+					$("#addName").val(),
+					$("#addPosition").val(),
+					$("#addOffice").val(),
+					action
+					]);
+				$('#addRowModal').modal('hide');
+
+			});
+		});
+	</script>
+	<script>
+		function exportToExcel() {
+			const table = document.getElementById("add-row");
+			const wb = XLSX.utils.table_to_book(table);
+			XLSX.writeFile(wb, "techniques_panifications.xlsx");
+		}
+	</script>
+
+{% endblock javascripts %}

@@ -1,0 +1,102 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Datatables {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+	<h3>Levain</h3><br><br><br>
+	<div class="row justify-content-center align-items-center mb-1">
+		<div class="col-md-6 pl-md-0 pr-md-0">
+			<div class="card card-pricing card-pricing-focus card-primary">
+				<div class="card-header">
+					<h4 class="card-title">Levain</h4>
+					
+				</div>
+				<div class="card-body">
+					<ul class="specification-list">
+						<li>
+							<span class="name-specification">Code Levain</span>
+							<span class="status-specification">{{levains.code_levain}}</span>
+						</li>
+						<li>
+							<span class="name-specification">Type levain</span>
+							<span class="status-specification">{{levains.get_type_levain_display }}</span>
+						</li>
+						<li>
+							<span class="name-specification">Date</span>
+							<span class="status-specification">{{levains.date}}</span>
+						</li>
+					</ul>
+
+					<div class="card-sub">
+						Composition du levain
+					</div>
+					<div class="table-responsive">
+						<table id="add-row" class="display table table-striped table-hover" >
+							<thead>
+								<tr>
+									{% for column in col %}
+									<th>{{ column }}</th>
+									{% endfor %}
+									
+								</tr>
+							</thead>
+				
+							<tbody id="table_panification">
+									{% if liste %}
+									<tr>
+									{% for value in liste %}
+										<td>{{ value }}</td>
+									{% endfor %}
+									
+									</tr>
+									{% endif %}
+								
+							</tbody>
+						</table>
+					</div>
+
+					<div class="card-sub">
+						Caracteristiques  du levain
+					</div>
+					<div class="table-responsive">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									{% for column in colcarac %}
+									<th>{{ column }}</th>
+									{% endfor %}
+								</tr>
+							</thead>
+							<tbody id="table_panification">
+								{% if listecarac %}
+								<tr>
+								{% for value in listecarac %}
+									<td>{{ value }}</td>
+								{% endfor %}
+								</tr>
+								{% endif %}
+						</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="card-footer">
+					<a href="{% url '/levainpdf.html' pk=levains.code_levain %}"  class="btn btn-light btn-block" >
+						Exporter
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+	<!-- Atlantis DEMO methods, don't include it in your project! -->
+	<script src="/static/assets/js/setting-demo2.js"></script>
+	
+{% endblock javascripts %}

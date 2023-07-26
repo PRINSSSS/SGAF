@@ -1,0 +1,291 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Datatables {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+	<div class="content">
+		<div class="page-inner">
+			<div class="page-header">
+				<h4 class="page-title">Levains</h4>
+				<ul class="breadcrumbs">
+					<li class="nav-home">
+						<a href="#">
+							<i class="flaticon-home"></i>
+						</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Levain</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">liste</a>
+					</li>
+				</ul>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="d-flex align-items-center">
+								<h4 class="card-title">Table des levains</h4>
+								<button  onclick="exportToExcel()" class="btn btn-primary btn-round ml-auto" >
+									<i class="fas fa-file-download"></i>
+									Exporter
+								</button>
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="table-responsive">
+								<table id="add-row" class="display table table-striped table-hover" >
+									<thead>
+										<tr>
+											<th>Code levain</th>
+											<th>Type levain</th>
+											<th>Date</th>
+											<th>pH</th>
+											<th>Att</th>
+											<th style="width: 10%">Action</th>
+										</tr>
+									</thead>
+									<tfoot>
+										<tr>
+											<th>Code levain</th>
+											<th>Type levain</th>
+											<th>Date</th>
+											<th>pH</th>
+											<th>Att</th>
+											<th style="width: 10%">Action</th>
+										</tr>
+									</tfoot>
+									<tbody>
+										{% if levains %}
+										{% for levain in levains %}
+										<tr>
+										   <td>{{levain.code_levain}}</td>
+										   <td>{{levain.get_type_levain_display }}</td>
+										   <td>{{levain.date}}</td>
+										   <td>{{levain.pH}}</td>
+										   <td>{{levain.att}}</td>
+										   <!--
+										    {% for ingredient in ingredients %}
+											{% if levain == ingredient.levain %}
+											<td>{{ ingredient.nom_ing}}</td>
+											<td>{{ ingredient.masse_ing}}</td>
+											{% endif %}
+											{% endfor %}icon-eye-->
+											<td>
+												<div class="form-button-action">
+													<a href="{% url '/levain.html' pk=levain.code_levain %}" title="Detail" class="btn btn-link btn-success btn-lg ">
+														<i class="fas fa-eye"></i>
+													</a>
+													<button id="btn-modifier" type="button"   class="btn btn-link btn-primary btn-lg" data-original-title="Modifier"
+														data-toggle="modal" data-target="#modifier"  data-id="{{ levain.code_levain }}"  >
+														<i class="fa fa-edit"></i>
+													</button>
+													<button id="btn-supprimer" type="button" class="btn btn-link btn-danger" data-toggle="modal" data-target="#staticBackdrop" data-id="{{ levain.code_levain }}"
+													data-original-title="Supprimer">
+														<i class="fa fa-times"></i>
+													</button>
+												</div>
+											</td>
+										</tr>
+										{% endfor %}
+										{% endif %}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				
+			</div>
+		</div>
+	</div>
+
+
+	<!-- Modal  Suppression -->
+	<div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+			<h5 class="modal-title" id="staticBackdropLabel">Suppression</h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+			<form method="post">
+				{% csrf_token %}
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-sm-12">
+							<div class="form-group form-group-default">
+								<label class="text-dark" id="label_id_s"><strong id="strong_id_s">Avant de suppprimer  assurer vous que vous que vous avez deja supprimer tous les rafraichissements
+									,les compositions et les caracteristiques liees a ce levain </strong></label>
+								<input type="hidden" id="id_supprimer" name="id_supprimer">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					<button type="submit" class="btn btn-primary">Supprimer</button>
+				</div>
+			</form>
+		</div>
+		</div>
+	</div>
+
+	<!-- Modal modifier -->
+	<div class="modal fade" id="modifier" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title text-dark text-center" id="exampleModalLabel">Modification</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form method="post">
+				{% csrf_token %}
+				<div class="modal-body">
+					
+					<input type="hidden" id="id_modifier" name="id_modifier">
+
+					<div class="row">
+						<div class="col-sm-12">
+							<div class="form-group form-group-default">
+								<label for="type_levain">Type de levain</label>
+								<select name="type_levain" required id="type_levain" class="form-control" placeholder="choisir le type de levain">
+									<option> choisir le type de levain </option>
+									<option value="F">Frais</option>
+									<option value="L">Liquide</option>
+									<option value="Lyo">Lyophilisé</option>
+									<option value="S">Séché</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-md-12">
+							<div class="form-group form-group-default">
+								<label for="date">Date</label>
+								<input type="date"  required   name="date" id="date" class="form-control" placeholder=" date de production">
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group form-group-default">
+								<label for="pH">pH</label>
+								<input type="number"  step="0.01" name="pH" id="pH" class="form-control" placeholder="pH initial">
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group form-group-default">
+								<label for="Att">Att</label>
+								<input type="number" step="0.01" name="Att" id="Att" class="form-control" placeholder="Att initale">
+							</div>
+						</div>
+					</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					<button type="submit" class="btn btn-primary">Enregistrer</button>
+				</div>
+			</form>
+		</div>
+		</div>
+	</div>
+	<!-- end modal-->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+	<!-- Atlantis DEMO methods, don't include it in your project! -->
+	<script src="/static/assets/js/setting-demo2.js"></script>
+
+	<script type="text/javascript">
+
+		// modification
+	 
+		$(document).on('click', '#btn-modifier', function(){
+		   let levain_id = $(this).data('id');
+		   $('#id_modifier').val(levain_id);
+		   console.log(levain_id)
+	 
+		})
+	 
+		// deleting 
+	 
+		$(document).on('click', '#btn-supprimer', function(){
+			let levain_id = $(this).data('id');
+		   $('#id_supprimer').val(levain_id);
+		   console.log(levain_id)
+	 
+		})
+	 
+	 
+	 
+	 </script>
+
+
+	<script >
+		$(document).ready(function() {
+			$('#add-row').DataTable( {
+				"pageLength": 5,
+				"lengthMenu": [5, 10, 25, 50, 100, 1500],
+				initComplete: function () {
+					this.api().columns().every( function () {
+						var column = this;
+						var select = $('<select class="form-control"><option value=""></option></select>')
+						.appendTo( $(column.footer()).empty() )
+						.on( 'change', function () {
+							var val = $.fn.dataTable.util.escapeRegex(
+								$(this).val()
+								);
+
+							column
+							.search( val ? '^'+val+'$' : '', true, false )
+							.draw();
+						} );
+
+						column.data().unique().sort().each( function ( d, j ) {
+							select.append( '<option value="'+d+'">'+d+'</option>' )
+						} );
+					} );
+				}
+			});
+
+			// Add Row
+			
+
+			var action = '<td> <div class="form-button-action"> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
+
+			$('#addRowButton').click(function() {
+				$('#add-row').dataTable().fnAddData([
+					$("#addName").val(),
+					$("#addPosition").val(),
+					$("#addOffice").val(),
+					action
+					]);
+				$('#addRowModal').modal('hide');
+
+			});
+		});
+	</script>
+	<script>
+		function exportToExcel() {
+			const table = document.getElementById("add-row");
+			const wb = XLSX.utils.table_to_book(table);
+			XLSX.writeFile(wb, "levains.xlsx");
+		}
+	</script>
+
+{% endblock javascripts %}

@@ -1,0 +1,82 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Forms {% endblock %} 
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+	<div class="content">
+		<div class="page-inner">
+			<div class="page-header">
+				<h4 class="page-title">Ingrédient</h4>
+				<ul class="breadcrumbs">
+					<li class="nav-home">
+						<a href="#">
+							<i class="flaticon-home"></i>
+						</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">Ingredient</a>
+					</li>
+					<li class="separator">
+						<i class="flaticon-right-arrow"></i>
+					</li>
+					<li class="nav-item">
+						<a href="#">ajout</a>
+					</li>
+				</ul>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Ajouter un nouveau ingredient </div>
+						</div>
+						<div class="card-body">
+							<form method="post">
+								{% csrf_token %}
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="nom_ing">Nom de l'ingrédient</label>
+										<input type="text"  required  name="nom_ing" id="nom_ing" class="form-control" placeholder="Entrer le nom de l'ingredient">
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="type_ing">Type de l'ingrédient</label>
+										<input type="text"    name="type_ing" id="type_ing" class="form-control" placeholder="Entrer le type de l'ingredient">
+									</div>
+								</div>
+								<div class="form-row">
+									<div class="form-group col-md-12">
+										<label for="nature">Nature de l'ingrédient</label>
+										<input type="text"    name="nature" id="nature" class="form-control" placeholder="Entrer la nature de l'ingredient">
+									</div>
+								</div>
+								<div>
+									<button type="submit" class="btn btn-success">Enregistrer</button>
+									<button type="reset" class="btn btn-danger">Annuler</button>
+								</div>
+							</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+
+
+	<!-- Atlantis DEMO methods, don't include it in your project! -->
+	<script src="/static/assets/js/setting-demo2.js"></script>
+
+{% endblock javascripts %}	
